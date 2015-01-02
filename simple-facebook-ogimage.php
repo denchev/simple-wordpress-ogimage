@@ -10,10 +10,14 @@
  * License: GPLv2
  */
 
-function sfogi_wp_head() {
-	$post_id = get_the_ID();
-	$image = wp_get_attachment_image_src( get_post_thumbnail_id($post_id), 'single-post-thumbnail' );
-	echo '<meta property="og:image" content="' . $image[0] . '">';
+if( ! function_exists( 'sfogi_wp_head' ) ) {
+	function sfogi_wp_head() {
+		if(is_single() ) {
+			$post_id = get_the_ID();
+			$image = wp_get_attachment_image_src( get_post_thumbnail_id($post_id), 'single-post-thumbnail' );
+			echo '<meta property="og:image" content="' . $image[0] . '">';
+		}
+	}
 }
 
 add_action('wp_head', 'sfogi_wp_head');
