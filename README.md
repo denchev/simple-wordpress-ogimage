@@ -3,7 +3,7 @@ Simple Wordpress OG Image
 
 Add og:image (Open Graph) tag to posts so Facebook can display proper image. 
 
-The image is determined by these rules:
-1. Is there a cached image that was already set? If yes, use it. (This means no extra calls are made i.e. no performance penalty)
-2. Is there a featured image? If yes, use it.
-3. If there isn't a featured image use first image from post.
+The image is determined by these rules:   
+1. Is there a cached image that was already set? If yes, use it. (This means no extra calls are made i.e. no performance penalty)   
+2. Is there a featured image? If yes, use it.   
+3. If there isn't a featured image use first image from post.   
