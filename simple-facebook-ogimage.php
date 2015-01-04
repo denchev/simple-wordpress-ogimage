@@ -2,7 +2,7 @@
 
 /**
  * Plugin Name: Simple Facebook OG image
- * Plugin URI: 
+ * Plugin URI: https://github.com/denchev/simple-wordpress-ogimage
  * Description: A very simple plugin to enable og:image tag only when you share to Facebook
  * Version: 1.0.0
  * Author: Marush Denchev
@@ -11,6 +11,8 @@
  */
 
 if( ! function_exists( 'sfogi_wp_head' ) ) {
+
+	// Check different sources for the image to use in the og:image tag.
 	function sfogi_wp_head() {
 		if(is_single() ) {
 
@@ -73,10 +75,11 @@ if( ! function_exists( 'sfogi_wp_head' ) ) {
 					$result = wp_cache_set($cache_key, $og_image, $cache_group);
 				}
 
-				echo '<meta property="og:image" content="' . $og_image . '">';
+				echo '<meta property="og:image" content="' . $og_image . '">' . "\n";
 			}
 		}
 	}
+
 }
 
 if( ! function_exists( 'sfogi_admin_menu' ) ) {
@@ -87,59 +90,76 @@ if( ! function_exists( 'sfogi_admin_menu' ) ) {
 	}
 }
 
-function sfogi_options_page() {
-	?>
-	<form method="post" action="options.php">
-		<?php settings_fields( 'sfogi' ); ?>
-    	<?php do_settings_sections( 'sfogi' ); ?>
+if( ! function_exists( 'sfogi_options_page' ) ) {
 
-    	<script>
-		jQuery(function() {
+	// Create options page in Settings
+	function sfogi_options_page() {
+		?>
+		<form method="post" action="options.php">
+			<?php settings_fields( 'sfogi' ); ?>
+	    	<?php do_settings_sections( 'sfogi' ); ?>
 
-			jQuery('#upload_image_button').click(function() {
-				formfield = jQuery('#upload_image').attr('name');
-				tb_show('', 'media-upload.php?type=image&TB_iframe=true');
-				return false;
+	    	<script>
+			jQuery(function() {
+
+				jQuery('#upload_image_button').click(function() {
+					formfield = jQuery('#upload_image').attr('name');
+					tb_show('', 'media-upload.php?type=image&TB_iframe=true');
+					return false;
+				});
+
+				window.send_to_editor = function(html) {
+					imgurl = jQuery('img',html).attr('src');
+					jQuery('#upload_image').val(imgurl);
+					tb_remove();
+				}
+
 			});
-
-			window.send_to_editor = function(html) {
-				imgurl = jQuery('img',html).attr('src');
-				jQuery('#upload_image').val(imgurl);
-				tb_remove();
-			}
-
-		});
-		</script>
+			</script>
 
 
-    	<table class="form-table">
-    		<tr valign="top">
-				<td><?php echo __('Default image', 'sfogi') ?></td>
-				<td><label for="upload_image">
-					<input id="upload_image" type="text" size="36" name="sfogi_default_image" value="<?php echo esc_attr(get_option('sfogi_default_image')) ?>" />
-					<input id="upload_image_button" type="button" value="Upload Image" />
-					<br /><?php echo __( 'Enter an URL or upload an image for the default image.', 'sfogi') ?>
-					</label>
-				</td>
-			</tr>
-    	</table>
-		<?php submit_button() ?>
-	</form>
-	<?php
+	    	<table class="form-table">
+	    		<tr valign="top">
+					<td><?php echo __('Default image', 'sfogi') ?></td>
+					<td><label for="upload_image">
+						<input id="upload_image" type="text" size="36" name="sfogi_default_image" value="<?php echo esc_attr(get_option('sfogi_default_image')) ?>" />
+						<input id="upload_image_button" type="button" value="Upload Image" />
+						<br /><?php echo __( 'Enter an URL or upload an image for the default image. Image must at least 200 x 200.', 'sfogi') ?>
+						</label>
+					</td>
+				</tr>
+	    	</table>
+			<?php submit_button() ?>
+		</form>
+		<?php
+	}
+
 }
 
-function sfogi_register_settings() {
-	register_setting('sfogi', 'sfogi_default_image');
+if( ! function_exists( 'sfogi_register_settings' ) ) {
+
+	function sfogi_register_settings() {
+		register_setting('sfogi', 'sfogi_default_image');
+	}
+
 }
 
-function sfogi_admin_scripts() {
-	wp_enqueue_script('media-upload');
-	wp_enqueue_script('thickbox');
-	wp_enqueue_script('jquery');
+if( ! function_exists( 'sfogi_admin_scripts' ) ) {
+
+	function sfogi_admin_scripts() {
+		wp_enqueue_script('media-upload');
+		wp_enqueue_script('thickbox');
+		wp_enqueue_script('jquery');
+	}
+
 }
 
-function sfogi_admin_styles() {
-	wp_enqueue_style('thickbox');
+if( ! function_exists( 'sfogi_admin_styles' ) ) {
+
+	function sfogi_admin_styles() {
+		wp_enqueue_style('thickbox');
+	}
+
 }
 
 add_action('wp_head', 'sfogi_wp_head');
