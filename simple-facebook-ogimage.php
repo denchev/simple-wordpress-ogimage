@@ -54,6 +54,16 @@ if( ! function_exists( 'sfogi_wp_head' ) ) {
 
 			}
 
+			// No OG ... still? Well let see if there is something in the default section
+			if($og_image === null) {
+
+				$option = get_option('sfogi_default_image');
+
+				if(!empty($option)) {
+					$og_image = $option;
+				}
+			}
+
 			// Found an image? Good. Display it.
 			if($og_image !== null) {
 
@@ -69,4 +79,74 @@ if( ! function_exists( 'sfogi_wp_head' ) ) {
 	}
 }
 
+if( ! function_exists( 'sfogi_admin_menu' ) ) {
+
+	function sfogi_admin_menu() {
+
+		add_submenu_page('options-general.php', __('Simple Facebook OG image', 'sfogi'), __('Simple Facebook OG image', 'sfogi'), 'manage_options', 'sfogi', 'sfogi_options_page');
+	}
+}
+
+function sfogi_options_page() {
+	?>
+	<form method="post" action="options.php">
+		<?php settings_fields( 'sfogi' ); ?>
+    	<?php do_settings_sections( 'sfogi' ); ?>
+
+    	<script>
+		jQuery(function() {
+
+			jQuery('#upload_image_button').click(function() {
+				formfield = jQuery('#upload_image').attr('name');
+				tb_show('', 'media-upload.php?type=image&TB_iframe=true');
+				return false;
+			});
+
+			window.send_to_editor = function(html) {
+				imgurl = jQuery('img',html).attr('src');
+				jQuery('#upload_image').val(imgurl);
+				tb_remove();
+			}
+
+		});
+		</script>
+
+
+    	<table class="form-table">
+    		<tr valign="top">
+				<td><?php echo __('Default image', 'sfogi') ?></td>
+				<td><label for="upload_image">
+					<input id="upload_image" type="text" size="36" name="sfogi_default_image" value="<?php echo esc_attr(get_option('sfogi_default_image')) ?>" />
+					<input id="upload_image_button" type="button" value="Upload Image" />
+					<br /><?php echo __( 'Enter an URL or upload an image for the default image.', 'sfogi') ?>
+					</label>
+				</td>
+			</tr>
+    	</table>
+		<?php submit_button() ?>
+	</form>
+	<?php
+}
+
+function sfogi_register_settings() {
+	register_setting('sfogi', 'sfogi_default_image');
+}
+
+function sfogi_admin_scripts() {
+	wp_enqueue_script('media-upload');
+	wp_enqueue_script('thickbox');
+	wp_enqueue_script('jquery');
+}
+
+function sfogi_admin_styles() {
+	wp_enqueue_style('thickbox');
+}
+
 add_action('wp_head', 'sfogi_wp_head');
+
+if( is_admin() ) {
+	add_action('admin_menu', 'sfogi_admin_menu');
+	add_action('admin_init', 'sfogi_register_settings');
+	add_action('admin_print_scripts', 'sfogi_admin_scripts');
+	add_action('admin_print_styles', 'sfogi_admin_styles');
+}
