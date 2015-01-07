@@ -10,6 +10,9 @@
  * License: GPLv2
  */
 
+
+define('SFOGI_PLUGIN_TITLE', __('Simple Facebook OG image', 'sfogi'));
+
 if( ! function_exists( 'sfogi_get' ) ) {
 
 	/**
@@ -110,7 +113,7 @@ if( ! function_exists( 'sfogi_admin_menu' ) ) {
 
 	function sfogi_admin_menu() {
 
-		add_submenu_page('options-general.php', __('Simple Facebook OG image', 'sfogi'), __('Simple Facebook OG image', 'sfogi'), 'manage_options', 'sfogi', 'sfogi_options_page');
+		add_submenu_page('options-general.php', SFOGI_PLUGIN_TITLE, SFOGI_PLUGIN_TITLE, 'manage_options', 'sfogi', 'sfogi_options_page');
 	}
 }
 
@@ -141,6 +144,7 @@ if( ! function_exists( 'sfogi_options_page' ) ) {
 			});
 			</script>
 
+			<h3><?php echo SFOGI_PLUGIN_TITLE ?></h3>
 
 	    	<table class="form-table">
 	    		<tr valign="top">
@@ -206,7 +210,7 @@ if( ! function_exists( 'sfogi_add_meta_boxes' ) ) {
 
 	function sfogi_add_meta_boxes() {
 
-		add_meta_box('sfogi_preview', __('Facebook Open Graph preview', 'sfogi'), 'sfogi_preview_callback', 'post', 'side', 'default');
+		add_meta_box('sfogi_preview', SFOGI_PLUGIN_TITLE, 'sfogi_preview_callback', 'post', 'side', 'default');
 	}
 }
 
