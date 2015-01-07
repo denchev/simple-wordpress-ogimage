@@ -33,6 +33,9 @@ The plugin will aslo cache the image (if there is a permanent cache plugin insta
 
 == Changelog ==
 
+= 1.1.0 =
+Add preview box in admin edit post area
+
 = 1.0.0 =
 Initial plugin version release.
 
