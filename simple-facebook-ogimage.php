@@ -162,11 +162,34 @@ if( ! function_exists( 'sfogi_admin_styles' ) ) {
 
 }
 
+if( ! function_exists( 'sfogi_preview_callback' ) ) {
+
+	function sfogi_preview_callback() {
+
+	}
+}
+
+if( ! function_exists( 'sfogi_add_meta_boxes' ) ) {
+
+	function sfogi_add_meta_boxes() {
+
+		add_meta_box('sfogi_preview', __('Facebook Open Graph preview', 'sfogi'), 'sfogi_preview_callback', 'post', 'side', 'default');
+	}
+}
+
+if( ! function_exists( 'sfogi_admin_init' ) ) {
+
+	function sfogi_admin_init() {
+		sfogi_register_settings();
+		sfogi_add_meta_boxes();
+	}
+}
+
 add_action('wp_head', 'sfogi_wp_head');
 
 if( is_admin() ) {
 	add_action('admin_menu', 'sfogi_admin_menu');
-	add_action('admin_init', 'sfogi_register_settings');
+	add_action('admin_init', 'sfogi_admin_init');
 	add_action('admin_print_scripts', 'sfogi_admin_scripts');
 	add_action('admin_print_styles', 'sfogi_admin_styles');
 }
