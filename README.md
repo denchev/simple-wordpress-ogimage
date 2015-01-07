@@ -10,9 +10,9 @@ The image is determined by these rules:
 4. If there isn't an image in the post, check is there a default image. If yes, use it.   
 5. If there isn't no tag will appear.   
 
-Version history
-1.1.0
-Add preview box in admin edit post area
-
-1.0.0
+###Version history   
+**1.1.0**   
+Add preview box in admin edit post area   
+   
+**1.0.0**   
 Initial release
