@@ -4,7 +4,7 @@
  * Plugin Name: Simple Facebook OG image
  * Plugin URI: https://github.com/denchev/simple-wordpress-ogimage
  * Description: A very simple plugin to enable og:image tag only when you share to Facebook
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: Marush Denchev
  * Author URI: http://www.htmlpet.com/
  * License: GPLv2
@@ -103,6 +103,8 @@ if( ! function_exists( 'sfogi_wp_head' ) ) {
 			if($og_image !== null) {
 
 				echo '<meta property="og:image" content="' . $og_image . '">' . "\n";
+				echo '<meta property="twitter:image" content="' . $og_image . '">' . "\n";
+				echo '<link rel="image_src" href="' . $og_image . '">' . "\n";
 			}
 		}
 	}
