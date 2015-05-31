@@ -4,7 +4,7 @@
  * Plugin Name: Simple Facebook OG image
  * Plugin URI: https://github.com/denchev/simple-wordpress-ogimage
  * Description: A very simple plugin to enable og:image tag only when you share to Facebook
- * Version: 1.1.1
+ * Version: 1.2
  * Author: Marush Denchev
  * Author URI: http://www.htmlpet.com/
  * License: GPLv2
@@ -26,7 +26,7 @@ if( ! function_exists( 'sfogi_get' ) ) {
 	 */
 	function sfogi_get() {
 
-		$og_image 	= null;
+		$og_image 	= array();
 		$post_id 	= get_the_ID();
 		$cache_key	= md5( 'sfogi_' . $post_id );
 		$cache_group= 'sfogi';
@@ -35,25 +35,25 @@ if( ! function_exists( 'sfogi_get' ) ) {
 
 		if($cached_image !== false) {
 
-			$og_image = $cached_image;
+			$og_image[] = $cached_image;
 
 		}
 
 		// No OG image? Get it from featured image
-		if($og_image == null) {
+		if(empty($og_image)) {
 
 			$image 		= wp_get_attachment_image_src( get_post_thumbnail_id( $post_id ), 'single-post-thumbnail' );
 
 			// There is a featured image
 		 	if($image !== false) {
 
-				$og_image = $image[0];
+				$og_image[] = $image[0];
 			}
 
 		} 
 
 		// No OG image still? Get it from post content
-		if($og_image === null) {
+		if(empty( $og_image ) ) {
 
 			$post = get_post($post_id);
 
@@ -61,23 +61,25 @@ if( ! function_exists( 'sfogi_get' ) ) {
 			preg_match_all('/<img(.*?)src="(?P<src>.*?)"([^>]+)>/', $post->post_content, $matches);
 
 			if(isset($matches['src'][0])) {
-				$og_image = $matches['src'][0];
+				foreach($matches['src'] as $match) {
+					$og_image[] = $match;
+				}
 			}
 
 		}
 
 		// No OG ... still? Well let see if there is something in the default section
-		if($og_image === null) {
+		if(empty( $og_image ) ) {
 
 			$option = get_option('sfogi_default_image');
 
 			if(!empty($option)) {
-				$og_image = $option;
+				$og_image[] = $option;
 			}
 		}
 
 		// Found an image? Good. Display it.
-		if($og_image !== null) {
+		if(!empty( $og_image )) {
 
 			// Cache the image source but only if the source is not retrieved from cache. No point of overwriting the same source.
 			if($cached_image === false) {
@@ -100,11 +102,24 @@ if( ! function_exists( 'sfogi_wp_head' ) ) {
 			$og_image 	= sfogi_get();
 
 			// Found an image? Good. Display it.
-			if($og_image !== null) {
+			if( !empty( $og_image ) ) {
 
-				echo '<meta property="og:image" content="' . $og_image . '">' . "\n";
-				echo '<meta property="twitter:image" content="' . $og_image . '">' . "\n";
-				echo '<link rel="image_src" href="' . $og_image . '">' . "\n";
+				// Get the first (or may be the only) image
+				$image = $og_image[0];
+
+				// If it is not allowed to offer all suitable images just get the first one but as an array
+				if((int)get_option('sfogi_allow_multiple_og_images') === 0) {
+					$og_image = array_slice($og_image, 0, 1);
+				}
+
+				// List multiple images to Facebook
+				foreach($og_image as $_image) {
+					echo '<meta property="og:image" content="' . $_image . '">' . "\n";
+				}
+
+				// For other medias just display the one image
+				echo '<meta property="twitter:image" content="' . $image . '">' . "\n";
+				echo '<link rel="image_src" href="' . $image . '">' . "\n";
 			}
 		}
 	}
@@ -158,6 +173,17 @@ if( ! function_exists( 'sfogi_options_page' ) ) {
 						</label>
 					</td>
 				</tr>
+				<?php
+				$checked = (int)get_option('sfogi_allow_multiple_og_images');
+				?>
+				<tr valign="top">
+					<td><?php echo __('Allow multiple OG images', 'sfogi') ?></td>
+					<td><label for="allow_multiple_og_images">
+						<input id="allow_multiple_og_images" type="checkbox" name="sfogi_allow_multiple_og_images" value="1" <?php if($checked) : ?>checked="checked"<?php endif ?> />
+						<br /><?php echo __( 'Facebook supports multiple OG images. By default the first one is set as default but customer can choose another one from a list of options.', 'sfogi') ?>
+						</label>
+					</td>
+				</tr>
 	    	</table>
 			<?php submit_button() ?>
 		</form>
@@ -170,6 +196,7 @@ if( ! function_exists( 'sfogi_register_settings' ) ) {
 
 	function sfogi_register_settings() {
 		register_setting('sfogi', 'sfogi_default_image');
+		register_setting('sfogi', 'sfogi_allow_multiple_og_images');
 	}
 
 }
@@ -198,8 +225,8 @@ if( ! function_exists( 'sfogi_preview_callback' ) ) {
 
 		$og_image = sfogi_get();
 
-		if($og_image != null) {
-			echo '<img src="' . $og_image . '" style="width: 100%">';
+		if(!empty($og_image)) {
+			echo '<img src="' . $og_image[0] . '" style="width: 100%">';
 		} else {
 			echo __('An Open Graph image tag will not be displayed. Set featured image, add media to post content or upload a default image.', 'sfogi');
 		}
