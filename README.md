@@ -11,6 +11,12 @@ The image is determined by these rules:
 5. If there isn't no tag will appear.   
 
 ###Version history   
+**1.2**   
+Allow multiple OG images at the same time (with option to turn it on/off)
+
+**1.1.1**   
+Add Twitter card image and general tag for more compatibilities
+
 **1.1.0**   
 Add preview box in admin edit post area   
    
