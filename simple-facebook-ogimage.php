@@ -4,12 +4,14 @@
  * Plugin Name: Simple Facebook OG image
  * Plugin URI: https://github.com/denchev/simple-wordpress-ogimage
  * Description: A very simple plugin to enable og:image tag only when you share to Facebook
- * Version: 1.2
- * Author: Marush Denchev
- * Author URI: http://www.htmlpet.com/
- * License: GPLv2
+ * Version: 1.2.1
+ * License: GPL-3.0
+ * License URI: http://www.gnu.org/licenses/gpl-3.0.txt
+ * Text Domain: sfogi
+ * Domain Path: /languages
+ * Author: HTML Pet Ltd
+ * Author URI: https://www.htmlpet.com
  */
-
 
 define('SFOGI_PLUGIN_TITLE', __('Simple Facebook OG image', 'sfogi'));
 
@@ -40,7 +42,7 @@ if( ! function_exists( 'sfogi_get' ) ) {
 		}
 
 		// No OG image? Get it from featured image
-		if(empty($og_image)) {
+		if( empty( $og_image ) ) {
 
 			$image 		= wp_get_attachment_image_src( get_post_thumbnail_id( $post_id ), 'single-post-thumbnail' );
 
@@ -53,9 +55,9 @@ if( ! function_exists( 'sfogi_get' ) ) {
 		} 
 
 		// No OG image still? Get it from post content
-		if(empty( $og_image ) ) {
+		if( empty( $og_image ) ) {
 
-			$post = get_post($post_id);
+			$post = get_post( $post_id );
 
 			// Get all images from within post content
 			preg_match_all('/<img(.*?)src="(?P<src>.*?)"([^>]+)>/', $post->post_content, $matches);
@@ -69,7 +71,7 @@ if( ! function_exists( 'sfogi_get' ) ) {
 		}
 
 		// No OG ... still? Well let see if there is something in the default section
-		if(empty( $og_image ) ) {
+		if( empty( $og_image ) ) {
 
 			$option = get_option('sfogi_default_image');
 
@@ -79,7 +81,7 @@ if( ! function_exists( 'sfogi_get' ) ) {
 		}
 
 		// Found an image? Good. Display it.
-		if(!empty( $og_image )) {
+		if( ! empty( $og_image ) ) {
 
 			// Cache the image source but only if the source is not retrieved from cache. No point of overwriting the same source.
 			if($cached_image === false) {
@@ -96,8 +98,9 @@ if( ! function_exists( 'sfogi_get' ) ) {
 if( ! function_exists( 'sfogi_wp_head' ) ) {
 
 	function sfogi_wp_head() {
+
 		// Attach only to single posts
-		if(is_single() ) {
+		if( is_single() ) {
 
 			$og_image 	= sfogi_get();
 
@@ -112,9 +115,17 @@ if( ! function_exists( 'sfogi_wp_head' ) ) {
 					$og_image = array_slice($og_image, 0, 1);
 				}
 
+				// Apply filters
+				$og_image = apply_filters('sfogi_before_output', $og_image);
+
 				// List multiple images to Facebook
 				foreach($og_image as $_image) {
+
+					$_image_secure = sfogi_get_secure_url( $_image );
+
 					echo '<meta property="og:image" content="' . $_image . '">' . "\n";
+					echo '<meta property="og:image:url" content="' . $_image . '">' . "\n";
+					echo '<meta property="og:image:secure_url" content="' . $_image_secure . '">' . "\n";
 				}
 
 				// For other medias just display the one image
@@ -124,6 +135,14 @@ if( ! function_exists( 'sfogi_wp_head' ) ) {
 		}
 	}
 
+}
+
+if( ! function_exists( 'sfogi_get_secure_url' ) ) {
+
+	function sfogi_get_secure_url( $url ) {
+
+		return str_replace('http://', 'https://', $url);
+	}
 }
 
 if( ! function_exists( 'sfogi_admin_menu' ) ) {
