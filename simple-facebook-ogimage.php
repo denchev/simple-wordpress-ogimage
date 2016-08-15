@@ -121,6 +121,7 @@ if( ! function_exists( 'sfogi_wp_head' ) ) {
 				// List multiple images to Facebook
 				foreach($og_image as $_image) {
 
+					$_image = sfogi_prepare_image_url( $_image );
 					$_image_secure = sfogi_get_secure_url( $_image );
 
 					echo '<meta property="og:image" content="' . $_image . '">' . "\n";
@@ -135,6 +136,28 @@ if( ! function_exists( 'sfogi_wp_head' ) ) {
 		}
 	}
 
+}
+
+if( ! function_exists( 'sfogi_prepare_image_url' ) ) {
+
+	function sfogi_prepare_image_url( $url ) {
+
+		$site_url = get_site_url();
+
+		// Image path is relative and not an absolute one - apply site url
+		if( strpos( $url, $site_url ) === false ) {
+
+			// Make sure there is no double /
+			if( substr( $site_url, -1) === '/' && $url[0] === '/') {
+
+				$site_url = rtrim( $site_url, '/' );
+			}
+
+			$url = $site_url . $url;
+		}
+		
+		return $url;
+	}
 }
 
 if( ! function_exists( 'sfogi_get_secure_url' ) ) {
