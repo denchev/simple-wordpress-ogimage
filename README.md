@@ -11,6 +11,15 @@ The image is determined by these rules:
 5. If there isn't no tag will appear.   
 
 ###Version history   
+**1.3.0**
+Add support for Embedly cards
+Enabled the plugin to work for pages
+Add SwiftType meta tag
+
+**1.2.1**
+No more relative images (/wp-content/path/to/image.jpg now is going to be SITE_URL/wp-content/path/to/image.jpg)
+Add few more Open Graph tags
+
 **1.2**   
 Allow multiple OG images at the same time (with option to turn it on/off)
 
