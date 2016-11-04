@@ -85,41 +85,44 @@ if( ! function_exists( 'sfogi_get' ) ) {
 
 			global $WP_Embedly;
 
-			if(!isset($post)) {
-				$post = get_post($post_id);
-			}
+			if($WP_Embedly->valid_key()) {
 
-			// Force filters to apply the Embedly logic
-			$post_content = apply_filters('the_content', $post->post_content);
+				if(!isset($post)) {
+					$post = get_post($post_id);
+				}
 
-			// Seach for some key Embedly components
-			preg_match('{<blockquote class="embedly-card"(.*?)data-card-key="(?P<key>.*?)">(.*?)<a href="(?P<href>.*?)">(.*?)</a>(.*?)</blockquote>}is', $post_content, $embedly_matches);
+				// Force filters to apply the Embedly logic
+				$post_content = apply_filters('the_content', $post->post_content);
 
-			if(!empty($embedly_matches['key']) && !empty($embedly_matches['href'])) {
+				// Seach for some key Embedly components
+				preg_match('{<blockquote class="embedly-card"(.*?)data-card-key="(?P<key>.*?)"(.*?)>(.*?)<a href="(?P<href>.*?)">(.*?)</a>(.*?)</blockquote>}is', $post_content, $embedly_matches);
 
-				$scheme = strpos($embedly_matches['href'], 'https') === false ? 'http' : 'https';
+				if(!empty($embedly_matches['key']) && !empty($embedly_matches['href'])) {
 
-				$embedly_remote_url = EMBEDLY_BASE_URI . 'card=1&key=' . $embedly_matches['key'] . '&native=true&scheme=' . $scheme . '&urls=' . rawurlencode($embedly_matches['href']) . '&v=2&youtube_showinfo=0';
+					$scheme = strpos($embedly_matches['href'], 'https') === false ? 'http' : 'https';
 
-				$args = array('timeout' => 5);
+					$embedly_remote_url = EMBEDLY_BASE_URI . 'card=1&key=' . $embedly_matches['key'] . '&native=true&scheme=' . $scheme . '&urls=' . rawurlencode($embedly_matches['href']) . '&v=2&youtube_showinfo=0';
 
-				$embedly_remote_response = wp_remote_get($embedly_remote_url, $args);
+					$args = array('timeout' => 5);
 
-				if(!is_wp_error($embedly_remote_response)) {
+					$embedly_remote_response = wp_remote_get($embedly_remote_url, $args);
 
-					$embedly_json = json_decode($embedly_remote_response['body']);
+					if(!is_wp_error($embedly_remote_response)) {
 
-					/**
-					 * Use when queriy card-details, not only card
-					 */
-					#if(isset($embedly_json[0]) && !empty($embedly_json[0]->images && isset($embedly_json[0]->images[0]->url))) {
-					#	$og_image[] = $embedly_json[0]->images[0]->url;
-					#}
+						$embedly_json = json_decode($embedly_remote_response['body']);
 
-					if(isset($embedly_json[0]->thumbnail_url)) {
-						$og_image[] = $embedly_json[0]->thumbnail_url;
-					}
-				} 
+						/**
+						 * Use when queriy card-details, not only card
+						 */
+						#if(isset($embedly_json[0]) && !empty($embedly_json[0]->images && isset($embedly_json[0]->images[0]->url))) {
+						#	$og_image[] = $embedly_json[0]->images[0]->url;
+						#}
+
+						if(is_array($embedly_json) && isset($embedly_json[0]->thumbnail_url)) {
+							$og_image[] = $embedly_json[0]->thumbnail_url;
+						}
+					} 
+				}
 			}
 		}
 
