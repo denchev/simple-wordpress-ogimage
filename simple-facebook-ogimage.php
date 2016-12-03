@@ -13,6 +13,8 @@
  * Author URI: https://www.htmlpet.com
  */
 
+include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+
 define('SFOGI_PLUGIN_TITLE', __('Simple Facebook OG image', 'sfogi'));
 
 if( ! function_exists( 'sfogi_get' ) ) {
