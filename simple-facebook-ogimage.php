@@ -13,6 +13,8 @@
  * Author URI: https://www.htmlpet.com
  */
 
+include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+
 define('SFOGI_PLUGIN_TITLE', __('Simple Facebook OG image', 'sfogi'));
 
 if( ! function_exists( 'sfogi_get' ) ) {
@@ -80,6 +82,33 @@ if( ! function_exists( 'sfogi_get' ) ) {
 			}
 		}
 
+		// Support for getty-images embed
+		if( empty( $og_image ) ) {
+
+			if(!$post) {
+				$post = get_post( $post_id );
+			}
+
+			$getty_domain = "embed.gettyimages.com/embed/";
+			
+			// Get all getty images frames from content
+			preg_match_all('#<(.*?)src="//'.$getty_domain.'(?P<src>.*?)"([^>]+)>#', $post->post_content, $matches);
+			
+			if(isset($matches['src'][0])) {
+				foreach($matches['src'] as $match) {
+					
+					// Get content of the iframe
+					$frame_content = wp_remote_get("https://".$getty_domain.$match)['body'];
+
+					// Find og:image address inside the iframe
+					preg_match('#<meta property="og:image" content="(?P<url>.*)" />#i', $frame_content, $frame_matches);
+					
+					if(isset($frame_matches['url']))
+						$og_image[] = $frame_matches['url'];
+				}
+			}
+		}
+		
 		// Support for Embedly
 		if( empty($og_image) && is_plugin_active('embedly/embedly.php') ) {
 
