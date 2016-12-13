@@ -18,7 +18,7 @@ The og:image is determined by these criterias (first that comes true will be use
 1. Is there a cached image that was already set? If yes, use it. (This means no extra calls are made i.e. no performance penalty)   
 2. Is there a featured image? If yes, use it.   
 3. If there isn't a featured image use first images (all images since 1.2 version) from the post instead of only one. That can be turn on/off from plugin settings.
-4. (Since 1.3) Check if the post contains an Embedly snippet. If so then tries to find an image from this source.
+4. (Since 1.3) Check if the post contains an Embedly or Getty snippet. If so then tries to find an image from this source.
 5. If no image is found by this point, check is there a default image. If yes, use it.   
 6. If there isn't no tag will appear.   
 
